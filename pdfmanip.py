@@ -57,13 +57,12 @@ def modify(pagenumbers, command, maxpage):
     add, remove pages from the @pagenumbers list
     """
     command = command.split(" ")
-    if command[0] == "add":
-        inc = 1
-    elif command[0] == "rm":
+    if command[0] == "rm":
         inc = 0
-    elif command[0] == "keep":
+    elif command[0] == "add":
         inc = 1
-        pagenumbers[:] = []
+    elif command[0] == "keep":
+        inc = 2
     else:
         print "error:", command[0]
         return 1
@@ -83,13 +82,16 @@ def modify(pagenumbers, command, maxpage):
 
         if a >= 1 and b <= maxpage:
             for index in xrange(a, b+1):
-                if inc:
-                    pagenumbers.append(index)
-                else:
+                if inc == 0:
                     try:
                         pagenumbers.remove(index)
                     except ValueError:
                         print "Ignoring:", index
+                elif inc == 1:
+                    pagenumbers.append(index)
+                elif inc == 2:
+                    pagenumbers[:] = []
+                    pagenumbers.append(index)
         else:
             print "Out of bounds:", s
 
@@ -185,10 +187,15 @@ def main():
         n = num_pages(input_pdf)
         pagenumbers = range(1, n+1)
 
-        print input_pdf + ":", n, "pages"
+        print "{pdf}: {n} pages".format(pdf = input_pdf, n = n)
 
         while True:
-            s = raw_input("> ")
+            try:
+                s = raw_input("> ")
+            except EOFError:
+                print
+                exit(0)
+
             if s == "help":
                 help()
             elif s == "status":
